@@ -4,9 +4,9 @@ class Program:
     @staticmethod
     def main(args):
         # Accept the values from command line arguments
-        marks1 = int(args[0])
-        marks2 = int(args[1])
-        marks3 = int(args[2])
+        marks1 = int(input("Enter subject 1 marks between 0-100: "))
+        marks2 = int(input("Enter subject 2 marks between 0-100: "))
+        marks3 = int(input("Enter subject 3 marks between 0-100: "))
 
         # Store the values entered in the object
         finder = ResultFinder()

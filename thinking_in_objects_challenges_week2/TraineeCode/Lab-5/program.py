@@ -6,7 +6,7 @@ class Program:
 
         Program.display_values("Before Swapping...", number1, number2)
 
-        Program.swap_values(number1, number2)
+        number1,number2 = Program.swap_values(number1, number2)
 
         Program.display_values("After Swapping...", number1, number2)
 
@@ -17,7 +17,8 @@ class Program:
     """
     @staticmethod
     def swap_values(number1, number2):
-        pass
+        number1, number2 = number2,number1
+        return number1,number2
 
     """
     Method to display the numbers before and after swapping
