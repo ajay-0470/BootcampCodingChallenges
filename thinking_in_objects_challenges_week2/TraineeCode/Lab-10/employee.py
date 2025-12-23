@@ -1,3 +1,5 @@
+from salary_calculator import SalaryCalculator
+
 class Employee:
 
     """
@@ -71,5 +73,9 @@ class Employee:
     def __repr__(self):
         return f"Employee(Id={self._emp_id}, Name={self._name}, Basic={self._basic}, HRA={self._hra}, Allowance%={self._allowance_percentage}, Role={self._role})"
 
-
+    def get_allowance(self):
+        return SalaryCalculator.get_allowance(self)
+    
+    def get_salary(self):
+        return SalaryCalculator.get_salary(self)
   
