@@ -1,4 +1,5 @@
 from salary_calculator import SalaryCalculator
+from role_builder import RoleBuilder
 
 class Employee:
 
@@ -78,3 +79,6 @@ class Employee:
     
     def get_salary(self):
         return SalaryCalculator.get_salary(self)
+    
+    def get_role_description(self):
+        return RoleBuilder.get_role_description(self._role)

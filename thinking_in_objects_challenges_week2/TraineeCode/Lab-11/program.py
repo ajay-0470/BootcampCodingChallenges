@@ -26,9 +26,9 @@ class Program:
             name = input("Name : ").strip()
             basic = float(input("Basic : ").strip())
             hra = float(input("HRA : ").strip())
-          
+           
             allowance_percentage = float(input("Percentage of Allowance : ").strip())
-
+     
             print("Enter Role Id : ")
             print(str(Roles.DEVELOPER) + ". " + RoleBuilder.get_role_description(Roles.DEVELOPER))
             print(str(Roles.TEST_ENGINEER) + ". " + RoleBuilder.get_role_description(Roles.TEST_ENGINEER))
@@ -50,7 +50,7 @@ class Program:
 
         report_date = input("Enter the date of the report (dd/mm/yyyy) : ")
 
-        report = EmployeeReport()
+        report = EmployeeReport(report_date)
         report.report_date = report_date
         report.display_employees(employees)
         input()

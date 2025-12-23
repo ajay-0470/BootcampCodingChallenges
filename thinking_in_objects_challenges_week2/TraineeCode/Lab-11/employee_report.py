@@ -6,8 +6,8 @@ class EmployeeReport:
     """
     Property of the class
     """
-    def __init__(self):
-        self.report_date = ""
+    def __init__(self, report_date):
+        self.report_date = report_date
 
     """
     Method to print a line in a report
@@ -47,7 +47,8 @@ class EmployeeReport:
                 continue
             printed_count += 1
 
-            role_desc = RoleBuilder.get_role_description(emp.role)
+            role_desc = emp.get_role_description()
+
             allowance = emp.get_allowance()
             salary = emp.get_salary()
 

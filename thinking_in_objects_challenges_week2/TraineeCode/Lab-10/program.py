@@ -24,20 +24,9 @@ class Program:
             print("Employee No : " + str(i+1))
             emp_id = input("Id: ").strip()
             name = input("Name : ").strip()
-            try:
-                basic = float(input("Basic : ").strip())
-            except ValueError:
-                basic = 0.0
-
-            try:
-                hra = float(input("HRA : ").strip())
-            except ValueError:
-                hra = 0.0
-
-            try:
-                allowance_percentage = float(input("Percentage of Allowance : ").strip())
-            except ValueError:
-                allowance_percentage = 0.0
+            basic = float(input("Basic : ").strip())
+            hra = float(input("HRA : ").strip())
+            allowance_percentage = float(input("Percentage of Allowance : ").strip())
 
             print("Enter Role Id : ")
             print(str(Roles.DEVELOPER) + ". " + RoleBuilder.get_role_description(Roles.DEVELOPER))
@@ -47,8 +36,6 @@ class Program:
             role = input()
 
             emp = Employee(emp_id, name, basic, hra, allowance_percentage, role)
-            employees[i] = emp
-
 
             employees[i] = emp
 
