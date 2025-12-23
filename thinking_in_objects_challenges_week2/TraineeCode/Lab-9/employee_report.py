@@ -1,4 +1,6 @@
 from employee import Employee
+from role_builder import RoleBuilder
+from salary_calculator import SalaryCalculator
 
 class EmployeeReport:
     """
@@ -39,7 +41,19 @@ class EmployeeReport:
         print("EMP_ID\tNAME\tROLE\t\tBASIC\tHRA\tALLOW\tSALARY")
         self.print_line()
 
+        printed_count = 0
+        for emp in employees:
+            if emp is None:
+                continue
+            printed_count += 1
+
+            role_desc = RoleBuilder.get_role_description(emp.role)
+            allowance = SalaryCalculator.get_allowance(emp)
+            salary = SalaryCalculator.get_salary(emp)
+
+            print(emp.emp_id, "\t", emp.name, "\t", role_desc,"\t", emp.basic, "\t", emp.hra, "\t", allowance, "\t", salary)
+
         # Placeholder for employee information printing
         # Original C# code does not include the loop for displaying details
 
-        self.display_footer(len(employees))
+        self.display_footer(printed_count)

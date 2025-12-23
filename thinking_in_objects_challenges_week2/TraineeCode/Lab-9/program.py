@@ -7,36 +7,37 @@ class Program:
     @staticmethod
     def main(args):
         # Employee array to hold the employees' information
-        employees = [None] * 4
-        emp = None
+        #emp = None
 
-        emp_id = ""
-        name = ""
-        report_date = ""
-        allowance_percentage = 0.0
-        basic = 0.0
-        hra = 0.0
-        role = 0
+        #emp_id = ""
+        #name = ""
+        #report_date = ""
+        #basic = 0.0
+        #hra = 0.0
+        #role = 0
 
         # Accept employee information from the user
-        print("Enter employee information")
+        employees = [None]*4
+        print("Enter 4 employees information")
 
         for i in range(len(employees)):
             print("Employee No : " + str(i+1))
-            print("Id : ")
-            emp_id = input()
+            emp_id = input("Id: ").strip()
+            name = input("Name : ").strip()
+            try:
+                basic = float(input("Basic : ").strip())
+            except ValueError:
+                basic = 0.0
 
-            print("Name : ")
-            name = input()
+            try:
+                hra = float(input("HRA : ").strip())
+            except ValueError:
+                hra = 0.0
 
-            print("Basic : ")
-            basic = input()
-
-            print("HRA : ")
-            hra = input()
-
-            print("Percentage of Allowance : ")
-            allowance_percentage = input()
+            try:
+                allowance_percentage = float(input("Percentage of Allowance : ").strip())
+            except ValueError:
+                allowance_percentage = 0.0
 
             print("Enter Role Id : ")
             print(str(Roles.DEVELOPER) + ". " + RoleBuilder.get_role_description(Roles.DEVELOPER))
@@ -45,13 +46,23 @@ class Program:
             print(str(Roles.DESIGNER) + ". " + RoleBuilder.get_role_description(Roles.DESIGNER))
             role = input()
 
+            emp = Employee()
+            emp.emp_id = emp_id
+            emp.name = name
+            emp.basic = basic
+            emp.hra = hra
+            emp.allowance_percentage = allowance_percentage
+            emp.role = role
+
+            employees[i] = emp
+
             # Note: Original C# code does not assign Employee object to Employees array
 
-        print("Enter the date of the report (dd/mm/yyyy) : ")
-        report_date = input()
+        report_date = input("Enter the date of the report (dd/mm/yyyy) : ")
 
         report = EmployeeReport()
-
+        report.report_date = report_date
+        report.display_employees(employees)
         input()
 
 

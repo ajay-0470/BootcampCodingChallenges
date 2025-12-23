@@ -4,11 +4,11 @@ class SalaryCalculator:
     """
     @staticmethod
     def get_salary(emp):
-        salary = 0
+        #salary = 0
 
         # Original python code has no calculation here
 
-        return salary
+        return emp.basic + emp.hra + SalaryCalculator.get_allowance(emp)
 
     """
     Method to get the allowance for an employee based on the percentage

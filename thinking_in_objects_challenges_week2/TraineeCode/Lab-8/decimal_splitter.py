@@ -1,18 +1,26 @@
+import math
 class DecimalSplitter:
     """
     Method to get the whole number from a double
     """
+    @staticmethod
     def get_whole(number):
-        pass
+        return math.floor(number)
 
     """
     Method to get the fractional part of a double number
     """
+    @staticmethod
     def get_fraction(number):
-        pass
+        whole = math.floor(number)
+        return (number-whole)
 
     """
     Method to check if a given number is odd or even
     """
+    @staticmethod
     def is_odd(number):
-        pass
+        if number%2 == 0 :
+            return "even"
+        else:
+            return "odd"
