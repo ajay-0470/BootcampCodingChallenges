@@ -1,3 +1,13 @@
+"""
+Design Challenge 3: Online Exam
+There is an online exam to be portal, where a list of question is to be created. Every question belongs
+to a category and a topic. The question can be of any type such as multiple choice question,
+paragraph question, etc.
+Design the OO model for the above problem statement and implement the code to
+• Find out the total number of question
+• List all question belonging to a topic
+• List all question belonging to a topic and category
+"""
 from onlineexam import SubjectCategory, KnowledgeTopic, ChoiceQuestion, DescriptiveQuestion, ExamManager
 
 programming = SubjectCategory(1, "Programming")

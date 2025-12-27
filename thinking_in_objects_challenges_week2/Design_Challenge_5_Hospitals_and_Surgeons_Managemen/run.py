@@ -1,22 +1,27 @@
+"""
+Design Challenge 5: Hospitals and Surgeons Management
+There is a surgeon management system where a surgeon works for many hospitals and conducts
+operation on patients admitted in a ward. The surgeon are of various type such as Senior, Non-senior
+,etc.
+Design the OO model for the above problem statement and implement the code to
+• Total number of patient being operated
+• List all the patient being operated by a surgeon
+• List all the patient admitted to a ward.
+"""
 from hospital import Hospital, Ward, Patient, Surgeon, Operation, HospitalManager
 
 h1 = Hospital(1, "City General")
-
-h2 = Hospital(2, "Green Valley")
 
 w1 = Ward(1, "Ward A", h1)
 
 w2 = Ward(2, "Ward B", h1)
 
-w3 = Ward(3, "Ward C", h2)
 
-p1 = Patient(1, "Arjun Kumar", w1)
+p1 = Patient(1, "Arjun ", w1)
 
-p2 = Patient(2, "Sana Mehta", w2)
+p2 = Patient(2, "Mahesh", w2)
 
-p3 = Patient(3, "Ravi Iyer", w3)
 
-p4 = Patient(4, "Leela Das", w1)
 
 s1 = Surgeon(1, "Dr. Rao", "Senior")
 
@@ -27,15 +32,11 @@ op1 = Operation(1, s1, p1)
 op2 = Operation(2, s1, p2)
 
 
-
-op3 = Operation(3, s2, p3)
-
-op4 = Operation(4, s1, p4)
-op5 = Operation(5, s2, p2)  
+ 
 
 
 manager = HospitalManager()
-for op in (op1, op2, op3, op4, op5):
+for op in (op1, op2):
     manager.add_operation(op)
 
 print("Total number of patients being operated:", manager.total_operated_patients())

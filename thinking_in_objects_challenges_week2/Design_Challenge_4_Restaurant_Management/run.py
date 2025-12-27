@@ -1,3 +1,13 @@
+"""
+Design Challenge 4: Restaurant Management
+There is a restaurant which has many of its branch at various location. The restaurant offers a wide
+range of menu and there is also a special menu where a discount of 30% is given. Every menu is
+composed of minimum 3 course category have its own items.
+Design the OO model for the above problem statement and implement the code to
+• List the total number of menu items
+• List all the menu items for a particular course category
+• List all the special discount menu
+"""
 from restaurant import (
     RestaurantBranch,
     Menu,

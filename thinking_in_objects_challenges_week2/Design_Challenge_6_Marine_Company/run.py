@@ -1,3 +1,13 @@
+"""
+Design Challenge 6: Marine Company
+A marine company has many ships with them. Ship are either cruise type, or cargo type. Some
+register to a particular ship to travel from one place to another or to send the cargo from one place
+to another. Design the OO model for the above problem statement and implement the
+code to
+• Total amount been collected.
+• List the total amount for every ship
+• List all the customer details for a particular cruise ship
+"""
 from marine import (
     CruiseShip,
     CargoShip,
