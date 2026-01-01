@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>eCommerce Labs </title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 12px;
+      }
+      button {
+        margin-right: 9px;
+      }
+      pre {
+        padding: 7px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>eCommerce Labs </h2>
+
+    <div>
+      <button id="btnLab1">Lab 1: Add Items</button>
+      <button id="btnLab2">Lab 2: Apply Membership</button>
+      <button id="btnLab3">Lab 3: Apply GST & Fee</button>
+      <button id="btnLab4">Lab 4: Apply Payment Charges</button>
+      <button id="btnLab5">Lab 5: Generate Invoice</button>
+    </div>
+
+    <pre id="output">
+
+</pre
+    >
+
+    <script>
+      let cart = [];
+      let subtotal = 0;
+      let membership = "None",
+        discountRate = 0,
+        discountAmount = 0;
+      let discountedTotal = 0;
+
+      let gstRate = 0.18,
+        gstAmount = 0;
+      let platformFeeRate = 0.002,
+        platformFee = 0;
+      let totalWithTax = 0;
+
+      let paymentMode = "",
+        paymentSurcharge = 0,
+        finalTotal = 0;
+
+      let invoiceId = null,
+        invoiceDate = null;
+
+      function showOut(t) {
+        document.getElementById("output").textContent = t;
+        console.log(t);
+      }
+
+      function lab1_addItems() {
+        cart = [];
+        subtotal = 0;
+
+        while (true) {
+          let code = prompt("Enter item code (leave empty to finish):", "");
+
+          if (!code) break;
+
+          let desc = prompt("Enter description for " + code + ":", "");
+
+          let qty = Math.round(
+            Number(prompt("Enter quantity (integer):", "1"))
+          );
+          if (!Number.isFinite(qty)) qty = 0;
+
+          let priceRaw = Number(prompt("Enter unit price (number):", "100"));
+          let price =
+            Math.round((Number.isFinite(priceRaw) ? priceRaw : 0) * 100) / 100;
+
+          let total = Math.round(qty * price * 100) / 100;
+
+          cart.push({
+            code: code.trim(),
+            desc: (desc || "").trim(),
+            qty,
+            price,
+            total,
+          });
+
+          let more = prompt("Add another item? (y/n)", "y");
+          if (!more || more.toLowerCase().charAt(0) != "y") break;
+        }
+
+        subtotal =
+          Math.round(cart.reduce((s, it) => s + it.total, 0) * 100) / 100;
+
+        membership = "None";
+        discountRate = 0;
+        discountAmount = 0;
+        discountedTotal = subtotal;
+
+        gstAmount = 0;
+        platformFee = 0;
+        totalWithTax = discountedTotal;
+
+        paymentMode = "";
+        paymentSurcharge = 0;
+        finalTotal = totalWithTax;
+
+        invoiceId = null;
+        invoiceDate = null;
+
+        showOut(buildStateText("After Lab 1: items added"));
+      }
+
+      function lab2_applyMembership() {
+        if (cart.length === 0) {
+          showOut("Cart is empty. Run Lab 1 first.");
+          return;
+        }
+
+        let m = prompt(
+          "Enter membership type: None / Silver / Gold / Platinum",
+          "None"
+        );
+
+        if (!m) m = "None";
+
+        m = m.trim();
+
+        let map = { None: 0, Silver: 0.05, Gold: 0.1, Platinum: 0.15 };
+
+        if (!(m in map)) m = "None";
+
+        membership = m;
+        discountRate = map[m];
+
+        discountAmount = Math.round(subtotal * discountRate * 100) / 100;
+
+        discountedTotal = Math.round((subtotal - discountAmount) * 100) / 100;
+
+        gstAmount = 0;
+        platformFee = 0;
+        totalWithTax = discountedTotal;
+
+        paymentMode = "";
+        paymentSurcharge = 0;
+        finalTotal = totalWithTax;
+
+        invoiceId = null;
+        invoiceDate = null;
+
+        showOut(buildStateText("After Lab 2: membership applied"));
+      }
+
+      function lab3_applyTaxesAndFees() {
+        if (cart.length === 0) {
+          showOut("Cart is empty. Run Lab 1 first.");
+          return;
+        }
+
+        if (typeof discountedTotal !== "number") discountedTotal = subtotal;
+
+        gstAmount = Math.round(discountedTotal * gstRate * 100) / 100;
+
+        platformFee = Math.round(discountedTotal * platformFeeRate * 100) / 100;
+
+        totalWithTax =
+          Math.round((discountedTotal + gstAmount + platformFee) * 100) / 100;
+
+        paymentMode = "";
+        paymentSurcharge = 0;
+        finalTotal = totalWithTax;
+
+        invoiceId = null;
+        invoiceDate = null;
+
+        showOut(buildStateText("After Lab 3: GST & platform fee applied"));
+      }
+
+      function lab4_applyPaymentCharges() {
+        if (cart.length === 0) {
+          showOut("Cart is empty. Run Lab 1 first.");
+          return;
+        }
+
+        if (typeof totalWithTax !== "number") totalWithTax = subtotal;
+
+        let p = prompt("Enter payment mode: Cash / Card / UPI", "Card");
+
+        if (!p) p = "Card";
+
+        p = p.trim();
+
+        let rate = 0;
+
+        if (p.toLowerCase() === "card") {
+          rate = totalWithTax < 1000 ? 0.025 : 0.01;
+          p = "Card";
+        } else if (p.toLowerCase() === "upi") {
+          rate = 0.005;
+          p = "UPI";
+        } else {
+          p = "Cash";
+          rate = 0;
+        }
+
+        paymentMode = p;
+
+        paymentSurcharge = Math.round(totalWithTax * rate * 100) / 100;
+
+        finalTotal = Math.round((totalWithTax + paymentSurcharge) * 100) / 100;
+
+        invoiceId = null;
+        invoiceDate = null;
+
+        showOut(buildStateText("After Lab 4: payment charges applied"));
+      }
+
+      function lab5_generateInvoice() {
+        if (cart.length === 0) {
+          showOut("Cart is empty. Run Lab 1 first.");
+          return;
+        }
+
+        if (discountedTotal === undefined) discountedTotal = subtotal;
+
+        if (typeof gstAmount !== "number")
+          gstAmount = Math.round(discountedTotal * gstRate * 100) / 100;
+
+        if (typeof platformFee !== "number")
+          platformFee =
+            Math.round(discountedTotal * platformFeeRate * 100) / 100;
+
+        if (typeof totalWithTax !== "number")
+          totalWithTax =
+            Math.round((discountedTotal + gstAmount + platformFee) * 100) / 100;
+
+        if (typeof finalTotal !== "number") finalTotal = totalWithTax;
+
+        invoiceId = invoiceId || "INV" + Date.now();
+        invoiceDate = invoiceDate || new Date().toLocaleString();
+
+        let lines = [];
+
+        lines.push("Invoice ID: " + invoiceId);
+        lines.push("Date: " + invoiceDate);
+        lines.push("");
+        lines.push("Items:");
+        lines.push("Code | Description | Qty | Price | LineTotal");
+
+        for (let it of cart) {
+          lines.push(
+            `${it.code} | ${it.desc} | ${it.qty} | ${it.price} | ${it.total}`
+          );
+        }
+
+        lines.push("");
+        lines.push(`Subtotal: ${subtotal.toFixed(2)}`);
+        lines.push(
+          `Membership: ${membership} (disc ${(discountRate * 100).toFixed(1)}%)`
+        );
+        lines.push(`Discount amount: -${discountAmount.toFixed(2)}`);
+        lines.push(`After discount: ${discountedTotal.toFixed(2)}`);
+        lines.push(
+          `GST (${(gstRate * 100).toFixed(1)}%): +${gstAmount.toFixed(2)}`
+        );
+        lines.push(
+          `Platform fee (${(platformFeeRate * 100).toFixed(
+            2
+          )}%): +${platformFee.toFixed(2)}`
+        );
+        lines.push(`Total with tax & fees: ${totalWithTax.toFixed(2)}`);
+        lines.push(
+          `Payment mode: ${paymentMode} (surcharge: +${paymentSurcharge.toFixed(
+            2
+          )})`
+        );
+        lines.push(`FINAL AMOUNT PAYABLE: ${finalTotal.toFixed(2)}`);
+        lines.push("");
+
+        showOut(lines.join("\n"));
+      }
+
+      function buildStateText(title) {
+        let t = [];
+
+        t.push(title || "State:");
+        t.push("");
+
+        t.push("Items in cart: " + cart.length);
+
+        for (let it of cart) {
+          t.push(
+            ` - ${it.code} | ${it.desc} | qty:${it.qty} | price:${it.price} | total:${it.total}`
+          );
+        }
+
+        t.push("");
+        t.push("Subtotal: " + subtotal.toFixed(2));
+        t.push(
+          "Membership: " +
+            membership +
+            " (rate: " +
+            (discountRate * 100).toFixed(1) +
+            "%)"
+        );
+        t.push("Discount amount: " + discountAmount.toFixed(2));
+        t.push("After discount: " + discountedTotal.toFixed(2));
+        t.push(
+          "GST (" + (gstRate * 100).toFixed(1) + "%): " + gstAmount.toFixed(2)
+        );
+        t.push(
+          "Platform fee (" +
+            (platformFeeRate * 100).toFixed(2) +
+            "%): " +
+            platformFee.toFixed(2)
+        );
+        t.push("Total with tax & fees: " + totalWithTax.toFixed(2));
+        t.push("Payment mode: " + (paymentMode || "not set"));
+        t.push("Payment surcharge: " + paymentSurcharge.toFixed(2));
+        t.push("Final total: " + finalTotal.toFixed(2));
+        t.push("");
+        t.push("Run each lab button as needed.");
+
+        return t.join("\n");
+      }
+
+      document
+        .getElementById("btnLab1")
+        .addEventListener("click", lab1_addItems);
+      document
+        .getElementById("btnLab2")
+        .addEventListener("click", lab2_applyMembership);
+      document
+        .getElementById("btnLab3")
+        .addEventListener("click", lab3_applyTaxesAndFees);
+      document
+        .getElementById("btnLab4")
+        .addEventListener("click", lab4_applyPaymentCharges);
+      document
+        .getElementById("btnLab5")
+        .addEventListener("click", lab5_generateInvoice);
+    </script>
+  </body>
+</html>

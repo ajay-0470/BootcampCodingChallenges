@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>profile</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Course Portal</h1>
+      <nav>
+        <a href="login.html">Login</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="profile.html">Profile</a>
+        <a href="gallery.html">Gallery</a>
+      </nav>
+    </header>
+
+    <main>
+      <form action="#" method="post" aria-label="profile form">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" />
+
+        <label for="edu">Education</label>
+        <input id="edu" name="education" type="text" />
+
+        <label for="bio">Bio</label>
+        <textarea id="bio" name="bio" rows="3"></textarea>
+
+        <label for="git">GitHub</label>
+        <input id="git" name="github" type="url" />
+
+        <label for="photo">Photo</label>
+        <input id="photo" name="photo" type="file" />
+
+        <button type="submit">Save</button>
+      </form>
+    </main>
+  </body>
+</html>
