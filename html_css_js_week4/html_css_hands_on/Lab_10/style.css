@@ -1,0 +1,17 @@
+body{background:#f6f6f6;color:#222;font-family:system-ui,Arial}
+
+header nav.navbar{position:sticky;top:0;z-index:1030}
+
+html{scroll-behavior:smooth}
+*{transition:.25s}
+a.nav-link:hover{background:rgba(0,0,0,.05);border-radius:.4rem}
+.card:hover{box-shadow:0 .8rem 1.6rem rgba(0,0,0,.12);transform:translateY(-2px)}
+
+.gallery-item{position:relative;overflow:hidden}
+.caption-overlay{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);color:#fff;padding:.4rem;transform:translateY(100%)}
+.gallery-item:hover .caption-overlay{transform:translateY(0)}
+
+body.dark{background:#0f1116;color:#e5e7eb}
+body.dark .navbar{background:#11141a!important}
+body.dark .card{background:#1a1d23;color:#e5e7eb}
+body.dark .nav-link{color:#ddd!important}

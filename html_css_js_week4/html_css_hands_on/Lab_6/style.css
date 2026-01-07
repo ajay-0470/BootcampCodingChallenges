@@ -1,0 +1,21 @@
+body{
+background:#f6f6f6;
+color:#222
+}
+
+.profile-avatar{
+width:140px;
+height:140px;
+object-fit:cover;
+margin:auto
+}
+
+.skills-badges{
+display:flex;
+flex-wrap:wrap;
+gap:.4rem
+}
+
+.skills-badges .badge{
+font-size:.8rem
+}

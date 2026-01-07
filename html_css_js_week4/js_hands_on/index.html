@@ -2,9 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>eCommerce Labs </title>
+    <title>eCommerce Labs</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -19,22 +18,35 @@
       }
     </style>
   </head>
-
   <body>
-    <h2>eCommerce Labs </h2>
+    <h2>eCommerce Labs</h2>
 
     <div>
       <button id="btnLab1">Lab 1: Add Items</button>
       <button id="btnLab2">Lab 2: Apply Membership</button>
+
       <button id="btnLab3">Lab 3: Apply GST & Fee</button>
       <button id="btnLab4">Lab 4: Apply Payment Charges</button>
       <button id="btnLab5">Lab 5: Generate Invoice</button>
+
+      <button id="btnLab6">Lab 6: Email Sim & Save</button>
+
+      <br /><br />
+
+      <button id="btnLab7">Lab 7: Persistent Cart</button>
+      <button id="btnLab8">Lab 8: Email Verify</button>
+      <button id="btnLab9">Lab 9: Validation & Errors</button>
+
+      <button id="btnLab10">Lab 10: Discount Closure</button>
+
+      <button id="btnLab11">Lab 11: Async Payment</button>
+
+      <button id="btnLab12">Lab 12: Inventory Check</button>
+
+      <button id="btnLab13">Lab 13: Billing Callback</button>
     </div>
 
-    <pre id="output">
-
-</pre
-    >
+    <pre id="output">State: (empty) — press "Lab 1" to add items.</pre>
 
     <script>
       let cart = [];
@@ -48,8 +60,8 @@
         gstAmount = 0;
       let platformFeeRate = 0.002,
         platformFee = 0;
-      let totalWithTax = 0;
 
+      let totalWithTax = 0;
       let paymentMode = "",
         paymentSurcharge = 0,
         finalTotal = 0;
@@ -57,33 +69,78 @@
       let invoiceId = null,
         invoiceDate = null;
 
+      let email = "";
+      let validationOn = false;
+      class ValidationError extends Error {
+        constructor(m) {
+          super(m);
+          this.name = "ValidationError";
+        }
+      }
+
+      let deliveryCharge = 0;
+      let couponDiscount = 0;
+      let loyaltyPoints = 0;
+
+      let lastTransaction = null;
+      let paymentStatus = null;
+
+      let inventoryMock = { A1: 10, B2: 3, C3: 0, D4: 25 };
+
       function showOut(t) {
         document.getElementById("output").textContent = t;
         console.log(t);
       }
 
+      function promptNum(msg, def) {
+        while (true) {
+          try {
+            let raw = prompt(msg, def);
+            let n = Number(raw);
+            if (validationOn) {
+              if (!Number.isFinite(n) || n <= 0)
+                throw new ValidationError("Value must be > 0");
+            }
+            return Math.round((Number.isFinite(n) ? n : 0) * 100) / 100;
+          } catch (e) {
+            alert(e.message || e);
+          } finally {
+            console.log("promptNum attempt finished");
+          }
+        }
+      }
+
       function lab1_addItems() {
         cart = [];
         subtotal = 0;
-
         while (true) {
           let code = prompt("Enter item code (leave empty to finish):", "");
-
           if (!code) break;
-
           let desc = prompt("Enter description for " + code + ":", "");
+          let qty;
+          if (validationOn) {
+            try {
+              qty = Math.round(promptNum("Enter quantity (integer):", "1"));
+            } catch (e) {
+              qty = 0;
+            }
+          } else {
+            qty = Math.round(Number(prompt("Enter quantity (integer):", "1")));
+            if (!Number.isFinite(qty)) qty = 0;
+          }
 
-          let qty = Math.round(
-            Number(prompt("Enter quantity (integer):", "1"))
-          );
-          if (!Number.isFinite(qty)) qty = 0;
-
-          let priceRaw = Number(prompt("Enter unit price (number):", "100"));
-          let price =
-            Math.round((Number.isFinite(priceRaw) ? priceRaw : 0) * 100) / 100;
-
+          let price;
+          if (validationOn) {
+            try {
+              price = promptNum("Enter unit price (number):", "100");
+            } catch (e) {
+              price = 0;
+            }
+          } else {
+            let pr = Number(prompt("Enter unit price (number):", "100"));
+            price = Math.round((Number.isFinite(pr) ? pr : 0) * 100) / 100;
+          }
           let total = Math.round(qty * price * 100) / 100;
-
           cart.push({
             code: code.trim(),
             desc: (desc || "").trim(),
@@ -91,14 +148,11 @@
             price,
             total,
           });
-
           let more = prompt("Add another item? (y/n)", "y");
           if (!more || more.toLowerCase().charAt(0) != "y") break;
         }
-
         subtotal =
           Math.round(cart.reduce((s, it) => s + it.total, 0) * 100) / 100;
-
         membership = "None";
         discountRate = 0;
         discountAmount = 0;
@@ -114,7 +168,6 @@
 
         invoiceId = null;
         invoiceDate = null;
-
         showOut(buildStateText("After Lab 1: items added"));
       }
 
@@ -123,35 +176,25 @@
           showOut("Cart is empty. Run Lab 1 first.");
           return;
         }
-
         let m = prompt(
           "Enter membership type: None / Silver / Gold / Platinum",
           "None"
         );
-
         if (!m) m = "None";
-
         m = m.trim();
-
         let map = { None: 0, Silver: 0.05, Gold: 0.1, Platinum: 0.15 };
-
         if (!(m in map)) m = "None";
-
         membership = m;
         discountRate = map[m];
-
         discountAmount = Math.round(subtotal * discountRate * 100) / 100;
-
         discountedTotal = Math.round((subtotal - discountAmount) * 100) / 100;
 
         gstAmount = 0;
         platformFee = 0;
         totalWithTax = discountedTotal;
-
         paymentMode = "";
         paymentSurcharge = 0;
         finalTotal = totalWithTax;
-
         invoiceId = null;
         invoiceDate = null;
 
@@ -163,23 +206,19 @@
           showOut("Cart is empty. Run Lab 1 first.");
           return;
         }
-
         if (typeof discountedTotal !== "number") discountedTotal = subtotal;
-
         gstAmount = Math.round(discountedTotal * gstRate * 100) / 100;
 
         platformFee = Math.round(discountedTotal * platformFeeRate * 100) / 100;
 
         totalWithTax =
           Math.round((discountedTotal + gstAmount + platformFee) * 100) / 100;
-
         paymentMode = "";
         paymentSurcharge = 0;
         finalTotal = totalWithTax;
 
         invoiceId = null;
         invoiceDate = null;
-
         showOut(buildStateText("After Lab 3: GST & platform fee applied"));
       }
 
@@ -188,17 +227,12 @@
           showOut("Cart is empty. Run Lab 1 first.");
           return;
         }
-
         if (typeof totalWithTax !== "number") totalWithTax = subtotal;
-
         let p = prompt("Enter payment mode: Cash / Card / UPI", "Card");
 
         if (!p) p = "Card";
-
         p = p.trim();
-
         let rate = 0;
-
         if (p.toLowerCase() === "card") {
           rate = totalWithTax < 1000 ? 0.025 : 0.01;
           p = "Card";
@@ -209,16 +243,12 @@
           p = "Cash";
           rate = 0;
         }
-
         paymentMode = p;
-
         paymentSurcharge = Math.round(totalWithTax * rate * 100) / 100;
-
         finalTotal = Math.round((totalWithTax + paymentSurcharge) * 100) / 100;
 
         invoiceId = null;
         invoiceDate = null;
-
         showOut(buildStateText("After Lab 4: payment charges applied"));
       }
 
@@ -227,7 +257,6 @@
           showOut("Cart is empty. Run Lab 1 first.");
           return;
         }
-
         if (discountedTotal === undefined) discountedTotal = subtotal;
 
         if (typeof gstAmount !== "number")
@@ -244,29 +273,28 @@
         if (typeof finalTotal !== "number") finalTotal = totalWithTax;
 
         invoiceId = invoiceId || "INV" + Date.now();
+
         invoiceDate = invoiceDate || new Date().toLocaleString();
-
         let lines = [];
-
         lines.push("Invoice ID: " + invoiceId);
         lines.push("Date: " + invoiceDate);
         lines.push("");
         lines.push("Items:");
         lines.push("Code | Description | Qty | Price | LineTotal");
-
         for (let it of cart) {
           lines.push(
             `${it.code} | ${it.desc} | ${it.qty} | ${it.price} | ${it.total}`
           );
         }
-
         lines.push("");
         lines.push(`Subtotal: ${subtotal.toFixed(2)}`);
+
         lines.push(
           `Membership: ${membership} (disc ${(discountRate * 100).toFixed(1)}%)`
         );
         lines.push(`Discount amount: -${discountAmount.toFixed(2)}`);
         lines.push(`After discount: ${discountedTotal.toFixed(2)}`);
+
         lines.push(
           `GST (${(gstRate * 100).toFixed(1)}%): +${gstAmount.toFixed(2)}`
         );
@@ -276,31 +304,115 @@
           )}%): +${platformFee.toFixed(2)}`
         );
         lines.push(`Total with tax & fees: ${totalWithTax.toFixed(2)}`);
+
         lines.push(
           `Payment mode: ${paymentMode} (surcharge: +${paymentSurcharge.toFixed(
             2
           )})`
         );
+        lines.push(`Delivery charge: +${deliveryCharge.toFixed(2)}`);
+
+        lines.push(`Coupon discount: -${couponDiscount.toFixed(2)}`);
+
         lines.push(`FINAL AMOUNT PAYABLE: ${finalTotal.toFixed(2)}`);
         lines.push("");
-
         showOut(lines.join("\n"));
+        let invoiceData = {
+          invoiceId,
+          invoiceDate,
+          subtotal,
+          discountAmount,
+          discountedTotal,
+          gstAmount,
+          platformFee,
+          totalWithTax,
+          paymentSurcharge,
+          finalTotal,
+        };
+        try {
+          localStorage.setItem(
+            "savedOrder",
+            JSON.stringify({
+              cartItems: cart,
+              invoiceData,
+              email,
+              timestamp: new Date().toISOString(),
+            })
+          );
+        } catch (e) {
+          console.log("ls error", e);
+        }
+      }
+
+      function lab6_emailSimAndSave() {
+        if (!invoiceId) {
+          showOut("No invoice found. Generate invoice first (Lab 5).");
+          return;
+        }
+        let invoiceData = {
+          invoiceId,
+          invoiceDate,
+          subtotal,
+          discountAmount,
+          discountedTotal,
+          gstAmount,
+          platformFee,
+          totalWithTax,
+          paymentSurcharge,
+          finalTotal,
+        };
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
+        let emailAddress = "";
+        while (true) {
+          let e = prompt("Enter your email:", "");
+          if (!e) {
+            alert("Email required");
+            continue;
+          }
+          e = e.trim();
+          if (!re.test(e)) {
+            alert("Invalid email; enter a valid email");
+            continue;
+          }
+          emailAddress = e;
+          break;
+        }
+        let confirmationMessage = "Invoice sent to " + emailAddress;
+        console.log(confirmationMessage);
+
+        let json = JSON.stringify(invoiceData, null, 2);
+
+        let out = json + "\n\n" + confirmationMessage;
+
+        showOut(out);
+        let wantSave = prompt("Save this invoice locally? (y/n)", "y");
+        if (wantSave && wantSave.toLowerCase().charAt(0) === "y") {
+          try {
+            localStorage.setItem(
+              "lab6_invoice",
+              JSON.stringify({
+                emailAddress,
+                invoiceData,
+                timestamp: new Date().toISOString(),
+              })
+            );
+            console.log("lab6 invoice saved to localStorage");
+          } catch (err) {
+            console.log("localStorage save error", err);
+          }
+        }
       }
 
       function buildStateText(title) {
         let t = [];
-
         t.push(title || "State:");
         t.push("");
-
         t.push("Items in cart: " + cart.length);
-
         for (let it of cart) {
           t.push(
             ` - ${it.code} | ${it.desc} | qty:${it.qty} | price:${it.price} | total:${it.total}`
           );
         }
-
         t.push("");
         t.push("Subtotal: " + subtotal.toFixed(2));
         t.push(
@@ -311,10 +423,12 @@
             "%)"
         );
         t.push("Discount amount: " + discountAmount.toFixed(2));
+
         t.push("After discount: " + discountedTotal.toFixed(2));
         t.push(
           "GST (" + (gstRate * 100).toFixed(1) + "%): " + gstAmount.toFixed(2)
         );
+
         t.push(
           "Platform fee (" +
             (platformFeeRate * 100).toFixed(2) +
@@ -323,29 +437,360 @@
         );
         t.push("Total with tax & fees: " + totalWithTax.toFixed(2));
         t.push("Payment mode: " + (paymentMode || "not set"));
+
         t.push("Payment surcharge: " + paymentSurcharge.toFixed(2));
+        t.push("Delivery charge: " + deliveryCharge.toFixed(2));
+        t.push("Coupon discount: " + couponDiscount.toFixed(2));
+
         t.push("Final total: " + finalTotal.toFixed(2));
+
+        t.push("Email: " + (email || "not set"));
+
         t.push("");
         t.push("Run each lab button as needed.");
-
         return t.join("\n");
       }
+
+      function lab7_persistent() {
+        let s = localStorage.getItem("savedOrder");
+        if (s) {
+          let ans = prompt("Resume previous cart? (y/n)", "y");
+          if (ans && ans.toLowerCase().charAt(0) === "y") {
+            try {
+              let obj = JSON.parse(s);
+              cart = obj.cartItems || [];
+              let idata = obj.invoiceData || {};
+
+              invoiceId = idata.invoiceId || null;
+              invoiceDate = idata.invoiceDate || null;
+              subtotal =
+                Math.round(
+                  (idata.subtotal || cart.reduce((s, it) => s + it.total, 0)) *
+                    100
+                ) / 100;
+              discountAmount = idata.discountAmount || 0;
+
+              discountedTotal = idata.discountedTotal || subtotal;
+              gstAmount = idata.gstAmount || 0;
+              platformFee = idata.platformFee || 0;
+
+              totalWithTax = idata.totalWithTax || discountedTotal;
+
+              finalTotal = idata.finalTotal || totalWithTax;
+              email = obj.email || "";
+              showOut(buildStateText("Resumed saved cart from localStorage"));
+              return;
+            } catch (e) {
+              console.log("parse err", e);
+            }
+          }
+        }
+        showOut("No saved cart resumed (start fresh).");
+      }
+
+      function lab8_emailVerify() {
+        while (true) {
+          try {
+            let e = prompt("Enter customer email:", "user@example.com");
+            if (!e) throw new ValidationError("Email required");
+            e = e.trim();
+            let re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(e)) throw new ValidationError("Invalid email format");
+            email = e;
+            console.log("Sent: Thank you - to " + email);
+            showOut("Email validated and simulated message sent to " + email);
+            break;
+          } catch (err) {
+            alert(err.message || err);
+          } finally {
+            console.log("email prompt attempt finished");
+          }
+        }
+      }
+
+      function lab9_validationOn() {
+        validationOn = true;
+        try {
+          if (cart.length === 0)
+            throw new ValidationError("Cart empty when enabling validation");
+          showOut(
+            "Validation enabled. Future numeric inputs will be checked (>0)."
+          );
+        } catch (e) {
+          showOut("Validation setup error: " + e.message);
+        } finally {
+          console.log("lab9 finished");
+        }
+      }
+
+      function getDiscountFunction(type) {
+        let rates = { None: 0, Silver: 0.05, Gold: 0.1, Platinum: 0.15 };
+        let r = type in rates ? rates[type] : 0;
+        return function (amount) {
+          return Math.round(amount * r * 100) / 100;
+        };
+      }
+      function lab10_discountClosure() {
+        let t = prompt(
+          "Enter membership type for closure: None/Silver/Gold/Platinum",
+          "None"
+        );
+        if (!t) t = "None";
+        t = t.trim();
+
+        let fn = getDiscountFunction(t);
+        let base =
+          subtotal > 0
+            ? subtotal
+            : Number(prompt("Enter base amount to test:", "100"));
+        discountAmount = fn(base);
+
+        discountedTotal = Math.round((base - discountAmount) * 100) / 100;
+        membership = t;
+        discountRate = discountAmount / base || 0;
+        showOut(buildStateText("After Lab 10: discount applied via closure"));
+      }
+
+      function simulatePayment(mode) {
+        return new Promise((res, rej) => {
+          setTimeout(() => {
+            let ok = true;
+            let tx = {
+              status: ok ? "success" : "failed",
+              txId: "TX" + Date.now(),
+              mode,
+              time: new Date().toISOString(),
+            };
+            if (ok) res(tx);
+            else rej(tx);
+          }, 1200);
+        });
+      }
+      async function lab11_asyncPayment() {
+        if (cart.length === 0) {
+          showOut("Cart empty; add items first.");
+          return;
+        }
+        let m = prompt("Enter payment mode to simulate: Cash/Card/UPI", "Card");
+        if (!m) m = "Card";
+        showOut("Processing payment...");
+        try {
+          let result = await simulatePayment(m);
+          paymentStatus = result.status;
+          lastTransaction = result;
+
+          showOut("Payment " + result.status + " txId:" + result.txId);
+        } catch (e) {
+          paymentStatus = "failed";
+          lastTransaction = e;
+          showOut("Payment failed");
+        } finally {
+          console.log("payment attempt logged");
+        }
+      }
+
+      function lookupInventory(itemCode) {
+        return new Promise((res, rej) => {
+          setTimeout(() => {
+            if (!(itemCode in inventoryMock))
+              return rej("Item code not found: " + itemCode);
+            res({ itemCode, stockQuantity: inventoryMock[itemCode] });
+          }, 800);
+        });
+      }
+      function lab12_inventoryCheck() {
+        if (cart.length === 0) {
+          showOut("Cart empty; add items first.");
+          return;
+        }
+        let checks = [];
+        for (let it of cart) {
+          checks.push(
+            lookupInventory(it.code)
+              .then((info) => {
+                if (it.qty > info.stockQuantity)
+                  showOut(
+                    "Not enough stock for " +
+                      it.code +
+                      " requested:" +
+                      it.qty +
+                      " available:" +
+                      info.stockQuantity
+                  );
+                else
+                  showOut(
+                    "Stock OK for " +
+                      it.code +
+                      " qty:" +
+                      it.qty +
+                      " in stock:" +
+                      info.stockQuantity
+                  );
+              })
+              .catch((err) => showOut("Inventory error: " + err))
+          );
+        }
+        Promise.allSettled(checks).then(() =>
+          console.log("inventory checks done")
+        );
+      }
+
+      function completeBilling(callback) {
+        if (cart.length === 0) {
+          showOut("Cart empty; nothing to bill.");
+          return;
+        }
+        if (typeof discountedTotal !== "number") discountedTotal = subtotal;
+
+        if (typeof gstAmount !== "number")
+          gstAmount = Math.round(discountedTotal * gstRate * 100) / 100;
+        if (typeof platformFee !== "number")
+          platformFee =
+            Math.round(discountedTotal * platformFeeRate * 100) / 100;
+        totalWithTax =
+          Math.round(
+            (discountedTotal +
+              gstAmount +
+              platformFee +
+              deliveryCharge -
+              couponDiscount) *
+              100
+          ) / 100;
+        finalTotal = Math.round((totalWithTax + paymentSurcharge) * 100) / 100;
+
+        invoiceId = invoiceId || "INV" + Date.now();
+        invoiceDate = invoiceDate || new Date().toLocaleString();
+
+        let invoiceData = {
+          invoiceId,
+          invoiceDate,
+          subtotal,
+          discountAmount,
+          discountedTotal,
+          gstAmount,
+          platformFee,
+          deliveryCharge,
+          couponDiscount,
+          paymentSurcharge,
+          finalTotal,
+        };
+
+        callback && callback(invoiceData);
+      }
+      function showInvoiceCallback(inv) {
+        let lines = [];
+        lines.push("Callback Invoice ID: " + inv.invoiceId);
+
+        lines.push("Date: " + inv.invoiceDate);
+
+        lines.push("Final: " + inv.finalTotal);
+
+        showOut(lines.join("\n"));
+      }
+      function thankYouCallback(inv) {
+        let msg = "Thank you for your order. Invoice " + inv.invoiceId;
+        if (email) msg += " sent to " + email;
+        console.log("thank you callback:", msg);
+        showOut(msg);
+      }
+      function lab13_billingCallback() {
+        let choice = prompt("Choose callback: 1=showInvoice, 2=thankYou", "1");
+        if (choice === "2") completeBilling(thankYouCallback);
+        else completeBilling(showInvoiceCallback);
+      }
+
+      (function () {
+        try {
+          let s = localStorage.getItem("savedOrder");
+          if (s) {
+            let ans = prompt(
+              "Saved cart found. Resume previous cart? (y/n)",
+              "y"
+            );
+            if (ans && ans.toLowerCase().charAt(0) === "y") {
+              let obj = JSON.parse(s);
+              cart = obj.cartItems || [];
+
+              let idata = obj.invoiceData || {};
+              invoiceId = idata.invoiceId || null;
+              invoiceDate = idata.invoiceDate || null;
+
+              subtotal =
+                Math.round(
+                  (idata.subtotal || cart.reduce((s, it) => s + it.total, 0)) *
+                    100
+                ) / 100;
+              discountAmount = idata.discountAmount || 0;
+              discountedTotal = idata.discountedTotal || subtotal;
+
+              gstAmount = idata.gstAmount || 0;
+              platformFee = idata.platformFee || 0;
+
+              totalWithTax = idata.totalWithTax || discountedTotal;
+
+              finalTotal = idata.finalTotal || totalWithTax;
+              email = obj.email || "";
+              showOut(buildStateText("Resumed saved cart on page load"));
+              return;
+            }
+          }
+        } catch (e) {
+          console.log("load resume error", e);
+        }
+        showOut("No saved cart resumed (start fresh).");
+      })();
 
       document
         .getElementById("btnLab1")
         .addEventListener("click", lab1_addItems);
+
       document
         .getElementById("btnLab2")
         .addEventListener("click", lab2_applyMembership);
+
       document
         .getElementById("btnLab3")
         .addEventListener("click", lab3_applyTaxesAndFees);
+
       document
         .getElementById("btnLab4")
         .addEventListener("click", lab4_applyPaymentCharges);
+
       document
         .getElementById("btnLab5")
         .addEventListener("click", lab5_generateInvoice);
+
+      document
+        .getElementById("btnLab6")
+        .addEventListener("click", lab6_emailSimAndSave);
+
+      document
+        .getElementById("btnLab7")
+        .addEventListener("click", lab7_persistent);
+
+      document
+        .getElementById("btnLab8")
+        .addEventListener("click", lab8_emailVerify);
+
+      document
+        .getElementById("btnLab9")
+        .addEventListener("click", lab9_validationOn);
+
+      document
+        .getElementById("btnLab10")
+        .addEventListener("click", lab10_discountClosure);
+
+      document
+        .getElementById("btnLab11")
+        .addEventListener("click", lab11_asyncPayment);
+
+      document
+        .getElementById("btnLab12")
+        .addEventListener("click", lab12_inventoryCheck);
+
+      document
+        .getElementById("btnLab13")
+        .addEventListener("click", lab13_billingCallback);
     </script>
   </body>
 </html>

@@ -1,0 +1,40 @@
+
+
+body {
+  background: #f6f6f6;
+}
+
+.module, .unit {
+  border-left: 3px solid #e9ecef;
+  padding-left: 10px;
+  margin-bottom: 8px;
+}
+
+.module-summary,
+.unit-summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 0;
+  list-style: none;
+}
+
+.unit-summary {
+  font-weight: 500;
+  font-size: .95rem;
+}
+
+.topic-list {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  padding-left: 18px;
+}
+
+.card .h5,
+.card .h6 {
+  margin-bottom: 12px;
+  color: #222;
+}
+
+main form {
+  background: white;
+}

@@ -1,0 +1,70 @@
+body {
+  background: #f6f6f6;
+  color: #222;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.container-fluid.px-2 {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+@media (min-width: 700px) {
+  .container-fluid.px-md-3 {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+.module, .unit {
+  border-left: 3px solid #e9ecef;
+  padding-left: 10px;
+  margin-bottom: 8px;
+}
+.module-summary, .unit-summary, details summary {
+  display: block;
+  cursor: pointer;
+  padding: .5rem .5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.unit-summary { font-weight: 500; font-size: .95rem; }
+.topic-list { margin-top: 6px; margin-bottom: 6px; padding-left: 18px; }
+details[open] > summary::after { content: " ▾"; float: right; }
+details:not([open]) > summary::after { content: " ▸"; float: right; }
+details summary:focus, a:focus, button:focus, input:focus, textarea:focus {
+  outline: 3px solid rgba(3,102,214,0.15);
+  outline-offset: 2px;
+}
+
+.gallery-item { position: relative; overflow: hidden; border-radius: 6px; }
+.gallery-item img { transition: transform .35s ease, filter .35s ease; display:block; width:100%; height:auto; }
+.gallery-item:hover img, .gallery-item:focus-within img { transform: scale(1.06); filter:brightness(.92); }
+
+.caption-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  padding: .5rem .6rem;
+  transform: translateY(100%);
+  transition: transform .25s ease;
+  font-size: .9rem;
+}
+.gallery-item:hover .caption-overlay,
+.gallery-item:focus-within .caption-overlay {
+  transform: translateY(0);
+}
+
+.gallery-link:focus { outline: 3px solid rgba(3,102,214,0.12); outline-offset: 2px; }
+
+#modalImage { max-height: 75vh; object-fit: contain; }
+
+.card-img-top { width: 100%; height: auto; object-fit: cover; }
+
+button.btn { min-height: 44px; padding-top: .4rem; padding-bottom: .4rem; }
+
+.profile-avatar { width: 140px; height: 140px; object-fit: cover; margin: auto; display: block; }
+.skills-badges { display:flex; flex-wrap:wrap; gap:.4rem; }
+.skills-badges .badge { font-size:.8rem; }
